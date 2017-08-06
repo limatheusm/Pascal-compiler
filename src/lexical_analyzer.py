@@ -78,6 +78,7 @@ class LexicalAnalyzer(object):
             elif self.program[i] in self.delimiters:
                 currentType = 'Delimitador'
                 if self.program[i] == ':' and self.program[i+1] == '=':
+                    currentType = 'Atribuicao'
                     token += self.program[i] + self.program[i+1]
                     i += 2
                 else:
@@ -88,8 +89,12 @@ class LexicalAnalyzer(object):
             elif self.program[i] == '{':
                 while self.program[i] != '}':
                     i += 1
+                    if self.program[i] == '\n':
+                        line += 1
+                    if i >= size:
+                        sys.exit("Erro linha {} - Faltou fechar comentario".format(line))
                 i += 1
-                
+
             # Erro de comentario
             elif self.program[i] is '}':
 				sys.exit("Erro linha {} - Faltou abrir comentario".format(line))
@@ -113,3 +118,5 @@ class LexicalAnalyzer(object):
 file_name = '../program.txt'
 p = open(file_name, "r").read()
 LexicalAnalyzer(p).parse()
+
+# Falta: Tratar erros simbolos que nao pertecem a linguagem e comentarios abertos
