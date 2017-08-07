@@ -1,7 +1,7 @@
 import sys
 
 class Token(object):
-    
+
     def __init__(self, token, tokenType, line):
         self.token = token
         self.tokenType = tokenType
@@ -11,18 +11,18 @@ class Token(object):
         return "{}\t\t{}\t\t{}".format(self.token, self.tokenType, self.line)
 
 class LexicalAnalyzer(object):
-    
+
     def __init__(self, program):
         self.program = program
-        self.keywords = ['program', 'var', 'integer', 'real', 'boolean', 'procedure', 
+        self.keywords = ['program', 'var', 'integer', 'real', 'boolean', 'procedure',
                          'begin', 'end', 'if', 'then', 'else', 'while', 'not', 'do']
         self.operators = ['+', '-', '*', '/', '=', '<', '>', '>=', '<=', 'and', 'or', '<>']
         self.delimiters = [',', '.', ';', ':', ':=', ')', '(']
         self.tokens = []
 
-    def parse(self):        
-        
-        i = 0        
+    def parse(self):
+
+        i = 0
         size = len(self.program)
         line = 1
         print ('---------------------------')
@@ -33,11 +33,11 @@ class LexicalAnalyzer(object):
             currentType = 'null'
 
             #Verificar String numerica int
-            if self.program[i].isdigit():                
+            if self.program[i].isdigit():
                 currentType = 'Numero Inteiro'
                 while self.program[i].isdigit():
                     token += self.program[i]
-                    i += 1                
+                    i += 1
                 #Verificar Numero Real
                 if self.program[i] == '.' and self.program[i+1].isdigit():
                     currentType = 'Numero Real'
@@ -45,14 +45,14 @@ class LexicalAnalyzer(object):
                     i += 1
                     while self.program[i].isdigit():
                         token += self.program[i]
-                        i += 1               
-            
+                        i += 1
+
             # Verificar Identificador ou Palavra Chave ou Operador (or, and)
             elif self.program[i].isalpha():
-                currentType = 'Identificador'                
+                currentType = 'Identificador'
                 while self.program[i].isalpha() or self.program[i].isdigit() or self.program[i] == '_':
                     token += self.program[i]
-                    i += 1                    
+                    i += 1
                 if token in self.keywords:
                     currentType = 'Palavra Chave'
                 elif token in self.operators:
@@ -60,7 +60,7 @@ class LexicalAnalyzer(object):
 
             # Verificar Operadores
             elif self.program[i] in self.operators:
-                currentType = 'Operador'                
+                currentType = 'Operador'
                 if self.program[i] == '<' or self.program[i] == '>':
                     token += self.program[i]
                     i += 1
@@ -73,7 +73,7 @@ class LexicalAnalyzer(object):
                 else:
                     token += self.program[i]
                     i += 1
-            
+
             # Verificar Delimitadores
             elif self.program[i] in self.delimiters:
                 currentType = 'Delimitador'
@@ -84,20 +84,20 @@ class LexicalAnalyzer(object):
                 else:
                     token += self.program[i]
                     i += 1
-            
+
             # Verificar Comentarios
             elif self.program[i] == '{':
                 while self.program[i] != '}':
                     i += 1
                     if self.program[i] == '\n':
                         line += 1
-                    if i >= size:
+                    if i >= size-1:
                         sys.exit("Erro linha {} - Faltou fechar comentario".format(line))
                 i += 1
 
             # Erro de comentario
             elif self.program[i] is '}':
-				sys.exit("Erro linha {} - Faltou abrir comentario".format(line))
+                sys.exit("Erro linha {} - Faltou abrir comentario".format(line))
 
             # Contagem de Linhas
             elif self.program[i] == '\n':
@@ -105,14 +105,14 @@ class LexicalAnalyzer(object):
                 line += 1
 
             else:
-                i += 1 
+                i += 1
 
             if token:
-                self.tokens.append(Token(token, currentType, line)) 
+                self.tokens.append(Token(token, currentType, line))
 
         print('\nToken\t\tClassificacao\t\tLinha\n')
         for s in self.tokens:
-            print(s)  
+            print(s)
 
 #file_name = sys.argv[1]
 file_name = '../program.txt'
