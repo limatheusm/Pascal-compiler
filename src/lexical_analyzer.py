@@ -16,7 +16,9 @@ class LexicalAnalyzer(object):
         self.program = program
         self.keywords = ['program', 'var', 'integer', 'real', 'boolean', 'procedure',
                          'begin', 'end', 'if', 'then', 'else', 'while', 'not', 'do']
-        self.operators = ['+', '-', '*', '/', '=', '<', '>', '>=', '<=', 'and', 'or', '<>']
+        self.relational_operators = ['=', '<', '>', '>=', '<=', '<>']
+        self.additive_operators = ['+', '-', 'or']
+        self.multiplicative_operators = ['*', '/', 'and']
         self.delimiters = [',', '.', ';', ':', ':=', ')', '(']
         self.tokens = []
 
@@ -55,12 +57,14 @@ class LexicalAnalyzer(object):
                     i += 1
                 if token in self.keywords:
                     currentType = 'Palavra Chave'
-                elif token in self.operators:
-                    currentType = 'Operador'
+                elif token in self.multiplicative_operators:
+                    currentType = 'Operador Multiplicativo'
+                elif token in self.additive_operators:
+                    currentType = 'Operador Aditivo'
 
             # Verificar Operadores
-            elif self.program[i] in self.operators:
-                currentType = 'Operador'
+            elif self.program[i] in self.relational_operators:
+                currentType = 'Operador Relacional'
                 if self.program[i] == '<' or self.program[i] == '>':
                     token += self.program[i]
                     i += 1
@@ -73,6 +77,14 @@ class LexicalAnalyzer(object):
                 else:
                     token += self.program[i]
                     i += 1
+            elif self.program[i] in self.additive_operators:
+                currentType = 'Operador Aditivo'
+                token += self.program[i]
+                i += 1
+            elif self.program[i] in self.multiplicative_operators:
+                currentType = 'Operador Multiplicativo'
+                token += self.program[i]
+                i += 1
 
             # Verificar Delimitadores
             elif self.program[i] in self.delimiters:
@@ -91,8 +103,8 @@ class LexicalAnalyzer(object):
                     i += 1
                     if self.program[i] == '\n':
                         line += 1
-                    if i >= size-1:
-                        sys.exit("Erro linha {} - Faltou fechar comentario".format(line))
+                    if i >= size - 1:
+                        sys.exit("Erro - Faltou fechar comentario aberto na linha {}".format(line))
                 i += 1
 
             # Erro de comentario
@@ -104,9 +116,13 @@ class LexicalAnalyzer(object):
                 i += 1
                 line += 1
 
+            #Verificar simbolos fora da linguagem
+            elif not self.program[i].isspace():
+                sys.exit("Erro linha {} - Simbolo {} nao pertence a linguagem".format(line, self.program[i]))
+
             else:
                 i += 1
-
+            
             if token:
                 self.tokens.append(Token(token, currentType, line))
 
