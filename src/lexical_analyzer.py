@@ -1,5 +1,6 @@
 import sys
 from token import Token
+from stack import Stack
 
 class LexicalAnalyzer(object):
 
@@ -18,32 +19,32 @@ class LexicalAnalyzer(object):
         i = 0
         size = len(self.program)
         line = 1
+        stackComment = Stack()
         print ('---------------------------')
         print (self.program)
         print ('---------------------------')
         while i < size:
             token = ''
             currentType = 'null'
-
             #Verificar String numerica int
             if self.program[i].isdigit():
                 currentType = 'Numero Inteiro'
-                while self.program[i].isdigit():
+                while i < size and self.program[i].isdigit():
                     token += self.program[i]
                     i += 1
                 #Verificar Numero Real
-                if self.program[i] == '.' and self.program[i+1].isdigit():
+                if i < size and self.program[i] == '.':
                     currentType = 'Numero Real'
                     token += self.program[i]
                     i += 1
-                    while self.program[i].isdigit():
+                    while i < size and self.program[i].isdigit():
                         token += self.program[i]
                         i += 1
-
+                        
             # Verificar Identificador ou Palavra Chave ou Operador (or, and)
             elif self.program[i].isalpha():
                 currentType = 'Identificador'
-                while self.program[i].isalpha() or self.program[i].isdigit() or self.program[i] == '_':
+                while i < size and (self.program[i].isalpha() or self.program[i].isdigit() or self.program[i] == '_'):
                     token += self.program[i]
                     i += 1
                 if token in self.keywords:
@@ -59,10 +60,10 @@ class LexicalAnalyzer(object):
                 if self.program[i] == '<' or self.program[i] == '>':
                     token += self.program[i]
                     i += 1
-                    if self.program[i] == '=':
+                    if i < size and self.program[i] == '=':
                         token += self.program[i]
                         i += 1
-                    elif self.program[i-1] == '<' and self.program[i] == '>':
+                    elif i < size and self.program[i-1] == '<' and self.program[i] == '>':
                         token += self.program[i]
                         i += 1
                 else:
@@ -80,7 +81,7 @@ class LexicalAnalyzer(object):
             # Verificar Delimitadores
             elif self.program[i] in self.delimiters:
                 currentType = 'Delimitador'
-                if self.program[i] == ':' and self.program[i+1] == '=':
+                if self.program[i] == ':' and i > size and self.program[i+1] == '=':
                     currentType = 'Atribuicao'
                     token += self.program[i] + self.program[i+1]
                     i += 2
@@ -90,17 +91,28 @@ class LexicalAnalyzer(object):
 
             # Verificar Comentarios
             elif self.program[i] == '{':
-                while self.program[i] != '}':
-                    i += 1
+                # Empilha elemento
+                stackComment.push(self.program[i])
+                i += 1
+                while i < size:                    
                     if self.program[i] == '\n':
                         line += 1
-                    if i >= size - 1:
-                        sys.exit("Erro - Faltou fechar comentario aberto na linha {}".format(line))
+                    if not stackComment.isempty():
+                        if self.program[i] == '{':
+                            stackComment.push(self.program[i])
+                        elif self.program[i] == '}':
+                            # Desempilha
+                            stackComment.pop()
+                    else:
+                        break
+                    i += 1
+                if not stackComment.isempty():
+                    sys.exit("Erro - Comentario aberto e nao fechado - linha {}".format(line))
                 i += 1
 
             # Erro de comentario
             elif self.program[i] is '}':
-                sys.exit("Erro linha {} - Faltou abrir comentario".format(line))
+                sys.exit("Erro - Comentario fechado e nao aberto - linha {}".format(line))
 
             # Contagem de Linhas
             elif self.program[i] == '\n':
