@@ -88,27 +88,37 @@ class LexicalAnalyzer(object):
                 else:
                     token += self.program[i]
                     i += 1
-
-            # Verificar Comentarios
+            
+            # # Verificar Comentarios
             elif self.program[i] == '{':
-                # Empilha elemento
-                stackComment.push(self.program[i])
-                i += 1
-                while i < size:                    
+                while self.program[i] != '}':
+                    i += 1
+
                     if self.program[i] == '\n':
                         line += 1
-                    if not stackComment.isempty():
-                        if self.program[i] == '{':
-                            stackComment.push(self.program[i])
-                        elif self.program[i] == '}':
-                            # Desempilha
-                            stackComment.pop()
-                    else:
-                        break
-                    i += 1
-                if not stackComment.isempty():
-                    sys.exit("Erro - Comentario aberto e nao fechado - linha {}".format(line))
+                    if i > size:
+                        sys.exit("Erro - Faltou fechar comentario aberto na linha {}".format(line))
                 i += 1
+            
+            # elif self.program[i] == '{':
+            #     # Empilha elemento
+            #     stackComment.push(self.program[i])
+            #     i += 1
+            #     while i < size:                    
+            #         if self.program[i] == '\n':
+            #             line += 1
+            #         if not stackComment.isempty():
+            #             if self.program[i] == '{':
+            #                 stackComment.push(self.program[i])
+            #             elif self.program[i] == '}':
+            #                 # Desempilha
+            #                 stackComment.pop()
+            #         else:
+            #             break
+            #         i += 1
+            #     if not stackComment.isempty():
+            #         sys.exit("Erro - Comentario aberto e nao fechado - linha {}".format(line))
+            #     i += 1
 
             # Erro de comentario
             elif self.program[i] is '}':
