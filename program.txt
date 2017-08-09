@@ -1,7 +1,7 @@
 program teste; {programa exemplo}
 var
-	valor1: integer;
+	8valor1: integer;
 	valor2: real; or < <> <=
 begin
-	valor1 := 10;
+	valor1& := 10;
 end.
