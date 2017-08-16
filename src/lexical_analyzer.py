@@ -26,6 +26,8 @@ class LexicalAnalyzer(object):
         while i < size:
             token = ''
             currentType = 'null'
+
+            
             #Verificar String numerica int
             if self.program[i].isdigit():
                 currentType = 'Numero Inteiro'
@@ -40,6 +42,22 @@ class LexicalAnalyzer(object):
                     while i < size and self.program[i].isdigit():
                         token += self.program[i]
                         i += 1
+                # numero complexo 23i+12 23i+
+                elif i < size and self.program[i] == 'i':
+                    tempToken = ''
+                    tempToken += token
+                    tempToken += self.program[i] #23
+                    # verifica se realmente eh complexo
+                    if i < size - 2 and (self.program[i+1] in '-+') and self.program[i+2].isdigit():
+                        currentType = 'Numero Complexo'
+                        i += 1 # Coloca i
+                        token = tempToken
+                        token += self.program[i]
+                        i += 1 # comeca a ler numeros
+                        while i < size and self.program[i].isdigit():
+                            token += self.program[i]
+                            i += 1
+
                         
             # Verificar Identificador ou Palavra Chave ou Operador (or, and)
             elif self.program[i].isalpha():
@@ -53,6 +71,18 @@ class LexicalAnalyzer(object):
                     currentType = 'Operador Mult'
                 elif token in self.additive_operators:
                     currentType = 'Operador Adit.'
+
+            # Verificar comentario de linha
+            elif i < size - 1 and self.program[i] == '/' and self.program[i+1] == '/':
+                while i < size:
+                    i += 1
+                    if i >= size:
+                        break
+                    if self.program[i] == '\n':
+                        i += 1
+                        line += 1
+                        break
+                
 
             # Verificar Operadores
             elif self.program[i] in self.relational_operators:
