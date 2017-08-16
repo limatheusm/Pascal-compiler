@@ -147,5 +147,3 @@ class LexicalAnalyzer(object):
 file_name = '../program.txt'
 p = open(file_name, "r").read()
 LexicalAnalyzer(p).parse()
-
-# Falta: Tratar erros simbolos que nao pertecem a linguagem e comentarios abertos
