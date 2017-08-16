@@ -48,15 +48,15 @@ class LexicalAnalyzer(object):
                     token += self.program[i]
                     i += 1
                 if token in self.keywords:
-                    currentType = 'Palavra Chave'
+                    currentType = 'Palavra Reserv.'
                 elif token in self.multiplicative_operators:
-                    currentType = 'Operador Multiplicativo'
+                    currentType = 'Operador Mult'
                 elif token in self.additive_operators:
-                    currentType = 'Operador Aditivo'
+                    currentType = 'Operador Adit.'
 
             # Verificar Operadores
             elif self.program[i] in self.relational_operators:
-                currentType = 'Operador Relacional'
+                currentType = 'Operador Rel.'
                 if self.program[i] == '<' or self.program[i] == '>':
                     token += self.program[i]
                     i += 1
@@ -70,18 +70,18 @@ class LexicalAnalyzer(object):
                     token += self.program[i]
                     i += 1
             elif self.program[i] in self.additive_operators:
-                currentType = 'Operador Aditivo'
+                currentType = 'Operador Adit.'
                 token += self.program[i]
                 i += 1
             elif self.program[i] in self.multiplicative_operators:
-                currentType = 'Operador Multiplicativo'
+                currentType = 'Operador Mult'
                 token += self.program[i]
                 i += 1
 
             # Verificar Delimitadores
             elif self.program[i] in self.delimiters:
                 currentType = 'Delimitador'
-                if self.program[i] == ':' and i > size and self.program[i+1] == '=':
+                if self.program[i] == ':' and i < size - 1 and self.program[i+1] == '=':
                     currentType = 'Atribuicao'
                     token += self.program[i] + self.program[i+1]
                     i += 2
@@ -91,13 +91,13 @@ class LexicalAnalyzer(object):
             
             # # Verificar Comentarios
             elif self.program[i] == '{':
+                lineComment = line
                 while self.program[i] != '}':
                     i += 1
-
+                    if i >= size:
+                        sys.exit("Erro - Faltou fechar comentario aberto na linha {}".format(lineComment))
                     if self.program[i] == '\n':
                         line += 1
-                    if i > size:
-                        sys.exit("Erro - Faltou fechar comentario aberto na linha {}".format(line))
                 i += 1
             
             # elif self.program[i] == '{':
