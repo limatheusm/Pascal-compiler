@@ -1,6 +1,5 @@
 import sys
 from token import Token
-from stack import Stack
 
 class LexicalAnalyzer(object):
 
@@ -19,10 +18,9 @@ class LexicalAnalyzer(object):
         i = 0
         size = len(self.program)
         line = 1
-        stackComment = Stack()
-        print ('---------------------------')
-        print (self.program)
-        print ('---------------------------')
+        # print ('---------------------------')
+        # print (self.program)
+        # print ('---------------------------')
         while i < size:
             token = ''
             currentType = 'null'
@@ -66,11 +64,11 @@ class LexicalAnalyzer(object):
                     token += self.program[i]
                     i += 1
                 if token in self.keywords:
-                    currentType = 'Palavra Reserv.'
+                    currentType = 'Palavra Reservada'
                 elif token in self.multiplicative_operators:
-                    currentType = 'Operador Mult'
+                    currentType = 'Operador Multiplicativo'
                 elif token in self.additive_operators:
-                    currentType = 'Operador Adit.'
+                    currentType = 'Operador Aditivo'
 
             # Verificar comentario de linha
             elif i < size - 1 and self.program[i] == '/' and self.program[i+1] == '/':
@@ -86,7 +84,7 @@ class LexicalAnalyzer(object):
 
             # Verificar Operadores
             elif self.program[i] in self.relational_operators:
-                currentType = 'Operador Rel.'
+                currentType = 'Operador Relacional'
                 if self.program[i] == '<' or self.program[i] == '>':
                     token += self.program[i]
                     i += 1
@@ -100,11 +98,11 @@ class LexicalAnalyzer(object):
                     token += self.program[i]
                     i += 1
             elif self.program[i] in self.additive_operators:
-                currentType = 'Operador Adit.'
+                currentType = 'Operador Aditivo'
                 token += self.program[i]
                 i += 1
             elif self.program[i] in self.multiplicative_operators:
-                currentType = 'Operador Mult'
+                currentType = 'Operador Multiplicativo'
                 token += self.program[i]
                 i += 1
 
@@ -129,26 +127,6 @@ class LexicalAnalyzer(object):
                     if self.program[i] == '\n':
                         line += 1
                 i += 1
-            
-            # elif self.program[i] == '{':
-            #     # Empilha elemento
-            #     stackComment.push(self.program[i])
-            #     i += 1
-            #     while i < size:                    
-            #         if self.program[i] == '\n':
-            #             line += 1
-            #         if not stackComment.isempty():
-            #             if self.program[i] == '{':
-            #                 stackComment.push(self.program[i])
-            #             elif self.program[i] == '}':
-            #                 # Desempilha
-            #                 stackComment.pop()
-            #         else:
-            #             break
-            #         i += 1
-            #     if not stackComment.isempty():
-            #         sys.exit("Erro - Comentario aberto e nao fechado - linha {}".format(line))
-            #     i += 1
 
             # Erro de comentario
             elif self.program[i] is '}':
@@ -169,11 +147,12 @@ class LexicalAnalyzer(object):
             if token:
                 self.tokens.append(Token(token, currentType, line))
 
-        print('\nToken\t\tClassificacao\t\tLinha\n')
-        for s in self.tokens:
-            print(s)
+        # print('\nToken\t\tClassificacao\t\tLinha\n')
+        # for s in self.tokens:
+        #     print(s)
 
-#file_name = sys.argv[1]
-file_name = '../program.txt'
-p = open(file_name, "r").read()
+        return self.tokens
+#file_path = sys.argv[1]
+file_path = '../program.txt'
+p = open(file_path, "r").read()
 LexicalAnalyzer(p).parse()
