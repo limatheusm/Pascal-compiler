@@ -1,6 +1,6 @@
 import sys
+import traceback
 
-from token import Token
 from lexical_analyzer import LexicalAnalyzer
 
 
@@ -19,7 +19,7 @@ class SyntacticAnalyzer(object):
                 if self.nextToken().token == ';':
                     self.var_declarations() 
                     self.subprograms_declarations()
-                    self.composed_commands()                    
+                    self.composed_commands()
                     if self.nextToken().token == '.':
                         print('Sucesso')
                     else:
@@ -36,7 +36,6 @@ class SyntacticAnalyzer(object):
             self.list_var_declarations()
         else:
             self.index -= 1
-            pass
     
     def subprograms_declarations(self):
         self.subprograms_declarations__()
@@ -76,10 +75,9 @@ class SyntacticAnalyzer(object):
                 self.syntaxError(')')
         else:
             self.index -= 1
-            pass
 
     def list_parameters(self):
-        self.list_identifiers()
+        self.list_identifiers() # pode ser nulo
         if self.nextToken().token == ':':
             self._type()
             self.list_parameters__()
@@ -96,7 +94,6 @@ class SyntacticAnalyzer(object):
                 self.syntaxError(':')
         else:
             self.index -= 1
-            pass
     
     ## return
     def composed_commands(self):
@@ -111,17 +108,11 @@ class SyntacticAnalyzer(object):
             return False
     
     def options_commands(self):
-        if self.list_commands():
-            pass
-        else:
-            pass
+        self.list_commands()
 
     def list_commands(self):
-        if self.command():
-            self.list_commands__()
-            return True
-        else:
-            return False
+        self.command()
+        self.list_commands__()
     
     def list_commands__(self):
         if self.nextToken().token == ';':
@@ -135,13 +126,14 @@ class SyntacticAnalyzer(object):
         if self.variable():
             if self.nextToken().token == ':=':
                 self.expression()
-                return True
+                return
             else:
                 self.syntaxError(':=')
+
         elif self.activation_procedure():
-            return True
+            pass
         elif self.composed_commands():
-            return True
+            pass
         else:
             aux = self.nextToken()
             
@@ -150,16 +142,19 @@ class SyntacticAnalyzer(object):
                 if self.nextToken().token == 'then':
                     self.command()
                     self.part_else()
-                    return True
+                    return
                 else:
                     self.syntaxError('then')
             elif aux.token == 'while':
                 self.expression()
                 if self.nextToken().token == 'do':
                     self.command()
-                    return True
+                    return
                 else:
                     self.syntaxError('do')
+            else:
+                self.index -= 1
+                return False
 
     ## return
     def variable(self):
@@ -179,24 +174,19 @@ class SyntacticAnalyzer(object):
                 else:
                     self.syntaxError(')')
             else:
-                # only id
                 self.index -= 1 
                 return True
         else:
             self.index -= 1
             return False
-
+            
     def expression(self):
         if self.simple_expression():
             if self.op_relational():
                 self.simple_expression()
-                return True
-            else:
-                return True
         else:
-            return False
+            self.syntaxError('Expressao')
 
-    ## return
     def simple_expression(self):
         if self.term():
             self.simple_expression__() #
@@ -207,15 +197,11 @@ class SyntacticAnalyzer(object):
             return True
         else:
             return False
-            pass
-    
+
     def simple_expression__(self):
         if self.op_aditive():
             self.term()
             self.simple_expression__()
-            return True
-        else:
-            return True
     
     ## return
     def op_relational(self):
@@ -254,9 +240,6 @@ class SyntacticAnalyzer(object):
         if self.op_multiplicative():
             self.factor()
             self.term__()
-            return True
-        else:
-            return True
 
     ## return
     def signal(self):
@@ -310,25 +293,25 @@ class SyntacticAnalyzer(object):
             self.list_expressions__()
         else:
             self.index -= 1
-            pass
     
     def part_else(self):
         if self.nextToken().token == 'else':
             self.command()
         else:
             self.index -= 1
-            pass
 
     def list_var_declarations(self):
-        self.list_identifiers()
-        if self.nextToken().token == ':':
-            self._type()
-            if self.nextToken().token == ';':
-                self.list_var_declarations__()
+        if self.list_identifiers():
+            if self.nextToken().token == ':':
+                self._type()
+                if self.nextToken().token == ';':
+                    self.list_var_declarations__()
+                else:
+                    self.syntaxError(';')
             else:
-                self.syntaxError(';')
+                self.syntaxError(':')
         else:
-            self.syntaxError(':')
+            self.syntaxError('Indentificador')
 
     def list_var_declarations__(self):
         if self.list_identifiers():
@@ -340,9 +323,6 @@ class SyntacticAnalyzer(object):
                     self.syntaxError(';')
             else:
                 self.syntaxError(':')
-        else:
-            pass
-        
 
     def list_identifiers(self):
         if self.nextToken().tokenType == 'Identificador':
@@ -360,7 +340,6 @@ class SyntacticAnalyzer(object):
                 self.syntaxError('Identificador')
         else:
             self.index -= 1
-            pass
     
     def _type(self):
         if self.nextToken().token in ['integer', 'boolean', 'real']:
@@ -372,12 +351,20 @@ class SyntacticAnalyzer(object):
     def nextToken(self):
         if (self.index + 1) < len(self.list_tokens):
             self.index += 1
+            #print(self.list_tokens[self.index])
+            #self.showStack()
             return self.list_tokens[self.index]
         else:
             sys.exit("out range")
     
     def syntaxError(self, token):
         sys.exit("Erro de sintaxe! Faltou adicionar {}".format(token))
+
+    def showStack(self):
+        print("########")
+        for line in traceback.format_stack():
+            print(line)
+        print("########")
 
 
 file_path = '../program.txt'
